@@ -16,16 +16,46 @@ function loadContent() {
     candidateNames.then( (result)=>result.json())
     .then( (result)=>  {
         //console.log(result);
-        const target=document.getElementById('main');
-        let list=document.createElement('ul');
-        for (let i=0;i<result.length;i++) {
-            let li=document.createElement('li');
-            li.setAttribute('id','li'+i);
-            li.innerHTML=" "+result[i].name;
-            list.appendChild(li);
-        }
-        target.append(list);
-    });
+        makeAList('potentialBallots',result);
+        
+    })
+    .catch(error=> {
+        console.error(error);
+        let errorMessage="error accessing candidate service";
+        console.error(errorMessage);
+        document.getElementById('potentialBallots').append(errorMessage);
+    })
     // write a list of candidates to the page
    
+}
+
+function loadVoters() {
+    let voterNames = fetch(endpoint['voter']);
+    voterNames.then( res=>res.json() ) 
+    .then ( result=> {
+        const potentialBallots =[];
+        const completedBallots = [];
+        for ( item of result ) {
+            if ( item.ballot === null ) {
+                potentialBallots.push(item);
+            } else {
+                completedBallots.push(item);
+            }
+        }
+        makeAList('potentialBallots',potentialBallots);
+        makeAList('completedBallots',completedBallots);
+    })
+
+}
+
+function makeAList( target, data ) {
+    const element=document.getElementById(target);
+        let list=document.createElement('ul');
+        for (let i=0;i<data.length;i++) {
+            let li=document.createElement('li');
+            li.setAttribute('id','li'+i);
+            li.innerHTML=" "+data[i].name;
+            list.appendChild(li);
+        }
+        element.append(list);
 }
