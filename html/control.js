@@ -2,13 +2,14 @@
 const endpoint = {};
 endpoint['candidates']='http://localhost:8080/api/candidates';
 endpoint['candidatesWithBallots']='http://localhost:8080/api/candidates/ballots';
-endpoint['voter']='http://localhost:8080/api/voter';
+endpoint['voters']='http://localhost:8080/api/voters';
 
 function initPage() {
     // set up the page
     // set the title
     document.getElementById('heading').innerHTML="Candidates"; // to change later
     loadContent();
+    loadVoters();
 }
 function loadContent() {
     // display a list of candidates
@@ -30,7 +31,7 @@ function loadContent() {
 }
 
 function loadVoters() {
-    let voterNames = fetch(endpoint['voter']);
+    let voterNames = fetch(endpoint['voters']);
     voterNames.then( res=>res.json() ) 
     .then ( result=> {
         const potentialBallots =[];
