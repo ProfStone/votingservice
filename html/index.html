@@ -8,16 +8,29 @@
        </head>
     <body onload="initPage()">
         <h1 id="heading">Title - FRIDAY</h1>
+        <div id="messages"></div>
 <div id="potentialBallots">
     <h2>Candidates</h2>
 
 </div>
 <div id="controls">
-    <button onclick="addVoter">[ Add a new voter ]</button>
+    <button id="addBtn">[ Add a new voter ]</button>
 </div>
 <div id="completedBallots">
 
 </div>
+<!-- modal window for adding a voter -->
+<div id="myModal" class="modal">
+    <form method="post" name="addUserForm">
+    <!-- html structure of the modal window-->
+    <div class="modal-content">
+        <span class="close">X</span>
+    <p><input type="text" name="userName" id="userName"></p>
+    <p><button id="submitBtn" onclick="return submitAddUser()">[ submit ] </button></p>
+    </div>
+    </form>
+</div>
+
 </body>
 </html>
 <script src="control.js"></script>

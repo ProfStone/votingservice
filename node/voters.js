@@ -28,4 +28,23 @@ app.get('/', async (request, response) => {
     } finally {
         client.close();
     }
-})
+});
+
+app.post('/', async (request, response)=> {
+    const submittedVoterName = request.body.name;
+    // create an object to match our voter object in mongo
+    const voterData = { "name": submittedVoterName, "ballot": null };
+    // write to mongo
+    try {
+        await client.connect();
+        await client.db('voting').collection('voters')
+        .insertOne(voterData)
+        .then( results => response.send(results))
+        .catch( error=> console.error(error));
+    } catch (error) {
+        console.error(error);
+    } finally {
+        client.close();
+    }
+
+});
