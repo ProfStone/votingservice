@@ -72,3 +72,19 @@ app.put('/', async ( request, response) => {
 })
 
 // DELETE, DELETE
+
+app.delete('/', async (request,response) => {
+    const voterFilter = { "name": request.body.name };
+    try {
+        await client.connect();
+        await client.db('voting').collection('voters')
+        .deleteOne(voterFilter)
+        .then( results=> response.send(results))
+        .catch( error=>console.error(error));
+    } catch(error) {
+        console.error(error);
+    } finally {
+        client.close();
+    }
+
+})
