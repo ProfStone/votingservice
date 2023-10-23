@@ -11,9 +11,22 @@ const viewType = {
     ballot: 'ballot',
     results: 'results'
 }
-function deleteVoter() {
+function deleteVoter(name) {
     // STUB: write a function to invoke the voter delete
     //alert('delete voter');
+    const voterPackage = { "name":name};
+    let deleteVoter = fetch(endpoint['voters'],
+    { method: 'DELETE',
+    headers: {
+        'content-type':'application/json'
+    },
+    body: JSON.stringify(voterPackage)
+    })
+    .then (results=>results.json())
+    .then ( (result)=> {
+        statusMessage(result);
+        loadContent(viewType['home']);
+    })
 
 }
 
