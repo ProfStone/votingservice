@@ -4,31 +4,67 @@ endpoint['candidates']='http://localhost:8080/api/candidates';
 endpoint['candidatesWithBallots']='http://localhost:8080/api/candidates/ballots';
 endpoint['voters']='http://localhost:8080/api/voters';
 
+const viewType = {
+    home: 'home',
+    ballot: 'ballot',
+    results: 'results'
+}
+
 function initPage() {
     // set up the page
     // set the title
     document.getElementById('heading').innerHTML="Candidates"; // to change later
-    loadContent();
-    loadVoters();
+    loadContent(viewType['home']);
+    //loadVoters();
 }
-function loadContent() {
-    // display a list of candidates
-    let candidateNames = fetch( endpoint['candidates']);
-    candidateNames.then( (result)=>result.json())
-    .then( (result)=>  {
-        //console.log(result);
-        makeAList('potentialBallots',result);
-        
-    })
-    .catch(error=> {
-        console.error(error);
-        let errorMessage="error accessing candidate service";
-        console.error(errorMessage);
-        document.getElementById('potentialBallots').append(errorMessage);
-    })
-    // write a list of candidates to the page
+function loadContent(view) {
+
+    // reset the view
+    const contentAreas=document.getElementsByClassName('displayArea');
+    for ( area of contentAreas) {
+        area.innerHTML=""; // empty the containers for redrawing
+    }
+    switch (view) {
+
+        case viewType['home']: {
+            loadCandidates(false); // STUB: include argument to show results
+            loadVoters();
+            break;
+        }
+        case viewType['ballot']: {
+            loadBallot();
+            break;
+        }
+        case viewType['results']: {
+            loadCandidates(true);
+        }
+    }
+}
+function loadCandidates(showVotes) {
+    let target = 'candidates';
+    if (showVotes) {
+        target='results';
+    }
+     // display a list of candidates
+     let candidateNames = fetch( endpoint[target]);
+     candidateNames.then( (result)=>result.json())
+     .then( (result)=>  {
+         //console.log(result);
+         makeAList('candidateList',result);
+         
+     })
+     .catch(error=> {
+         console.error(error);
+         
+         console.error(error);
+         document.getElementById('potentialBallots').append(error);
+     })
+     // write a list of candidates to the page
+
+}
    
-}
+   
+
 
 function loadVoters() {
     let voterNames = fetch(endpoint['voters']);
@@ -51,7 +87,7 @@ function loadVoters() {
 
 function makeAList( target, data ) {
     const element=document.getElementById(target);
-    element.innerHTML=""; // clear out content
+    //element.innerHTML=""; // clear out content
         let list=document.createElement('ul');
         for (let i=0;i<data.length;i++) {
             let li=document.createElement('li');
