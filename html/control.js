@@ -4,10 +4,17 @@ endpoint['candidates']='http://localhost:8080/api/candidates';
 endpoint['candidatesWithBallots']='http://localhost:8080/api/candidates/ballots';
 endpoint['voters']='http://localhost:8080/api/voters';
 
+let voterPackage = {}; // global container for holding ballot information
+
 const viewType = {
     home: 'home',
     ballot: 'ballot',
     results: 'results'
+}
+function deleteVoter() {
+    // STUB: write a function to invoke the voter delete
+    //alert('delete voter');
+
 }
 
 function initPage() {
@@ -16,6 +23,10 @@ function initPage() {
     document.getElementById('heading').innerHTML="Candidates"; // to change later
     loadContent(viewType['home']);
     //loadVoters();
+}
+function loadBallot() {
+    // STUB: write this to load the ballot
+    alert('ballot view');
 }
 function loadContent(view) {
 
@@ -79,20 +90,33 @@ function loadVoters() {
                 completedBallots.push(item);
             }
         }
-        makeAList('potentialBallots',potentialBallots);
-        makeAList('completedBallots',completedBallots);
+        makeAList('potentialBallots',potentialBallots, "name", showBallot, true);
+        makeAList('completedBallots',completedBallots, "name", false, true);
     })
 
 }
 
-function makeAList( target, data ) {
+function makeAList( target, data, idField, ocfunction, deleteLink ) {
     const element=document.getElementById(target);
     //element.innerHTML=""; // clear out content
         let list=document.createElement('ul');
         for (let i=0;i<data.length;i++) {
             let li=document.createElement('li');
-            li.setAttribute('id','li'+i);
-            li.innerHTML=" "+data[i].name;
+            let span=document.createElement('span');
+            let keyValue=data[i][idField];
+            if (ocfunction) {
+                span.onclick=ocfunction;
+            }
+            span.innerHTML=data[i].name;
+            span.id=keyValue;
+            li.append(span);
+            if (deleteLink) {
+                let link=document.createElement('a');
+                link.innerHTML=" [ x ]";
+                link.onclick=function() { deleteVoter(keyValue); }
+                li.append(link);
+            }
+            
             list.appendChild(li);
         }
         element.append(list);
@@ -115,6 +139,10 @@ async function  saveVoter(voter) {
     .catch(error=>console.log("error saving voter"));
 
     // STUB: maybe write the error on the page somewhere
+}
+function showBallot() {
+    voterPackage.voter=this.id;
+    loadContent(viewType['ballot']); // display the ballot view
 }
 function statusMessage(message) {
     document.getElementById("messages").innerHTML=message;
