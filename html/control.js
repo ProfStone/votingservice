@@ -38,8 +38,13 @@ function initPage() {
     //loadVoters();
 }
 function loadBallot() {
-    // STUB: write this to load the ballot
-    alert('ballot view');
+    // show the ballot so the current user can vote
+    // STUB: alter the display to make it look like a ballot
+    let candidateNames = fetch(endpoint['candidates'])
+    .then( res=>res.json()) 
+    .then (result=> {
+        makeAList("candidateList", result, "name", recordVote);
+    })
 }
 function loadContent(view) {
 
@@ -67,14 +72,14 @@ function loadContent(view) {
 function loadCandidates(showVotes) {
     let target = 'candidates';
     if (showVotes) {
-        target='results';
+        target='candidatesWithBallots';
     }
      // display a list of candidates
      let candidateNames = fetch( endpoint[target]);
      candidateNames.then( (result)=>result.json())
      .then( (result)=>  {
          //console.log(result);
-         makeAList('candidateList',result);
+         makeAList('candidateList',result,"name");
          
      })
      .catch(error=> {
@@ -111,7 +116,7 @@ function loadVoters() {
 
 function makeAList( target, data, idField, ocfunction, deleteLink ) {
     const element=document.getElementById(target);
-    //element.innerHTML=""; // clear out content
+    element.innerHTML=""; // clear out content
         let list=document.createElement('ul');
         for (let i=0;i<data.length;i++) {
             let li=document.createElement('li');
@@ -134,6 +139,30 @@ function makeAList( target, data, idField, ocfunction, deleteLink ) {
         }
         element.append(list);
 }
+function recordVote() {
+     // when a user clicks on a candidate, record a vote
+     // for that user and that candidate
+     voterPackage.candidate=this.id; 
+     let addBallot= fetch(endpoint['voters'],
+     { 
+        method: 'PUT',
+        headers: { 'Content-type':'application/json'},
+     
+     body: JSON.stringify(voterPackage) }
+     )
+     .then( res=>res.json()) 
+     .then( (result)=> {
+        statusMessage(result);
+        // clear out the voterPackage
+        voterPackage={};
+        // redraw the page
+        loadContent(viewType['home']);
+     })
+     .catch(error=>{
+        console.error(error);
+        statusMessage(error);
+     });
+}
 async function  saveVoter(voter) {
     const dataToSend = { "name":voter };
     let addVoter = await fetch( endpoint['voters'],
@@ -148,13 +177,14 @@ async function  saveVoter(voter) {
     .then( response=>response.json())
     .then( (result)=> {
         statusMessage(result);
+        loadVoters(); // update the list of voters
     })
     .catch(error=>console.log("error saving voter"));
 
     // STUB: maybe write the error on the page somewhere
 }
 function showBallot() {
-    voterPackage.voter=this.id;
+    voterPackage.voter=this.id; 
     loadContent(viewType['ballot']); // display the ballot view
 }
 function statusMessage(message) {
@@ -176,6 +206,10 @@ var btn=document.getElementById("addBtn");
 var closeSpan=document.getElementsByClassName("close")[0];
 btn.onclick=function() {
     modal.style.display="block";
+}
+var resultBtn=document.getElementById('showResults');
+resultBtn.onclick=function() {
+    loadContent(viewType['results']);
 }
 
 closeSpan.onclick = function() {

@@ -52,12 +52,15 @@ app.get('/', async (request, response) => {
 
 // UPDATE, PUT
 app.put('/', async ( request, response) => {
+    
     // expecting JSON variables to help us record a vote
     // key for the voter: name
     // key for the ballot
     const submission = request.body.candidate; // ??
     const voterFilter = { "name":request.body.voter }; // person voting
     const updateDocument = { $set: { "ballot": { "name":submission} } };
+    console.log(voterFilter);
+    console.log(updateDocument);
     try {
         await client.connect();
         await client.db('voting').collection('voters')

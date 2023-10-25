@@ -38,7 +38,7 @@ server.listen(port, hostname, () => console.log(`server running at http://${host
 async function getCandidates() {
     let values = [];
     console.log('getCandidates');   
- const database = client.db('voting'); 
+    const database = client.db('voting'); 
     const candidates = database.collection('candidates');
     const cursor = candidates.find({}).sort({ name: 1}); 
     while ( await cursor.hasNext()) {
@@ -56,13 +56,13 @@ async function getCandidatesWithBallots() {
     const cursor = candidates.find({}).sort( { name: 1});
     while ( await cursor.hasNext()) {
         let thisCandidate = await cursor.next();
-        const query = { "ballot.candidate":thisCandidate.name };
+        const query = { "ballot.name":thisCandidate.name };
         const matchingVotes = await ballots.countDocuments( query );
-         values.push( { "candidate": thisCandidate.name, "ballots": matchingVotes});
+         values.push( { "_id":thisCandidate._id, "name": thisCandidate.name+ ' '+matchingVotes, "ballots": matchingVotes});
     }
     const query2 ={ "ballot": null};
     const matchingVotes = await ballots.countDocuments(query2);
-    values.push( { "candidate":"not voted", "ballots": matchingVotes });
+    values.push( { "_id":0, "name":"not voted", "ballots": matchingVotes });
     return values;
 }
 
