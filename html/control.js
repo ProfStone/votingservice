@@ -36,40 +36,37 @@ function initPage() {
     document.getElementById('heading').innerHTML="Candidates"; // to change later
     loadContent(viewType['home']);
     //loadVoters();
+    // modal window functions
+    var modal=document.getElementById("myModal");
+    var btn=document.getElementById("addBtn");
+    var closeSpan=document.getElementsByClassName("close")[0];
+    btn.onclick=function() {
+        modal.style.display="block";
+    }
+    var resultBtn=document.getElementById('showResults');
+    resultBtn.onclick=function() {
+        loadContent(viewType['results']);
+    }
+
+    closeSpan.onclick = function() {
+        modal.style.display="none";
+    }
+    window.onclick=function(event) {
+        if (event.target==modal) {
+            modal.style.display="none";
+        }
+    }
 }
-function loadBallot() {
+function fetchAndDrawBallot() {
     // show the ballot so the current user can vote
     // STUB: alter the display to make it look like a ballot
     let candidateNames = fetch(endpoint['candidates'])
     .then( res=>res.json()) 
     .then (result=> {
-        makeAList("candidateList", result, "name", recordVote);
+        makeAList("candidateList", result, "name", recordVoterAndVote);
     })
 }
-function loadContent(view) {
-
-    // reset the view
-    const contentAreas=document.getElementsByClassName('displayArea');
-    for ( area of contentAreas) {
-        area.innerHTML=""; // empty the containers for redrawing
-    }
-    switch (view) {
-
-        case viewType['home']: {
-            loadCandidates(false); // STUB: include argument to show results
-            loadVoters();
-            break;
-        }
-        case viewType['ballot']: {
-            loadBallot();
-            break;
-        }
-        case viewType['results']: {
-            loadCandidates(true);
-        }
-    }
-}
-function loadCandidates(showVotes) {
+function fetchAndListCandidates(showVotes) {
     let target = 'candidates';
     if (showVotes) {
         target='candidatesWithBallots';
@@ -91,11 +88,8 @@ function loadCandidates(showVotes) {
      // write a list of candidates to the page
 
 }
-   
-   
 
-
-function loadVoters() {
+function fetchAndListVoters() {
     let voterNames = fetch(endpoint['voters']);
     voterNames.then( res=>res.json() ) 
     .then ( result=> {
@@ -113,6 +107,31 @@ function loadVoters() {
     })
 
 }
+
+function loadContent(view) {
+
+    // reset the view
+    const contentAreas=document.getElementsByClassName('displayArea');
+    for ( area of contentAreas) {
+        area.innerHTML=""; // empty the containers for redrawing
+    }
+    switch (view) {
+
+        case viewType['home']: {
+            fetchAndListCandidates(false); // STUB: include argument to show results
+            fetchAndListVoters();
+            break;
+        }
+        case viewType['ballot']: {
+            fetchAndDrawBallot();
+            break;
+        }
+        case viewType['results']: {
+            fetchAndListCandidates(true);
+        }
+    }
+}
+
 
 function makeAList( target, data, idField, ocfunction, deleteLink ) {
     const element=document.getElementById(target);
@@ -139,7 +158,15 @@ function makeAList( target, data, idField, ocfunction, deleteLink ) {
         }
         element.append(list);
 }
-function recordVote() {
+function recordNewVoter() {
+    let newName = document.getElementById('userName').value;
+    recordVoter(newName); // post to the API
+    closeSpan.onclick();
+    // I've added a voter, need to reload the voter list
+    fetchAndListVoters();
+    return false;
+}
+function recordVoterAndVote() {
      // when a user clicks on a candidate, record a vote
      // for that user and that candidate
      voterPackage.candidate=this.id; 
@@ -163,7 +190,7 @@ function recordVote() {
         statusMessage(error);
      });
 }
-async function  saveVoter(voter) {
+async function  recordVoter(voter) {
     const dataToSend = { "name":voter };
     let addVoter = await fetch( endpoint['voters'],
     {
@@ -177,7 +204,7 @@ async function  saveVoter(voter) {
     .then( response=>response.json())
     .then( (result)=> {
         statusMessage(result);
-        loadVoters(); // update the list of voters
+        fetchAndListVoters(); // update the list of voters
     })
     .catch(error=>console.log("error saving voter"));
 
@@ -190,33 +217,6 @@ function showBallot() {
 function statusMessage(message) {
     document.getElementById("messages").innerHTML=message;
 }
-function submitAddUser() {
-    let newName = document.getElementById('userName').value;
-    saveVoter(newName); // post to the API
-    closeSpan.onclick();
-    // I've added a voter, need to reload the voter list
-    loadVoters();
-    return false;
-}
 
 
-// modal window functions
-var modal=document.getElementById("myModal");
-var btn=document.getElementById("addBtn");
-var closeSpan=document.getElementsByClassName("close")[0];
-btn.onclick=function() {
-    modal.style.display="block";
-}
-var resultBtn=document.getElementById('showResults');
-resultBtn.onclick=function() {
-    loadContent(viewType['results']);
-}
 
-closeSpan.onclick = function() {
-    modal.style.display="none";
-}
-window.onclick=function(event) {
-    if (event.target==modal) {
-        modal.style.display="none";
-    }
-}
