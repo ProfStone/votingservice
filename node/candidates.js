@@ -12,8 +12,6 @@ const hostname = "127.0.0.1";
 const port = 3001;
 const server = http.createServer();
 
-
-
 server.on('request', async ( request, response) => {
     // check the path, and invoke one function or another
     let q = url.parse(request.url,true);
